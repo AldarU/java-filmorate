@@ -16,7 +16,9 @@ import java.util.Map;
 @RestController
 public class UserController {
     private Map<Integer, User> users = new HashMap<>();
+
     private int id = 0;
+
     private void plusId() {
         this.id++;
     }
@@ -54,7 +56,6 @@ public class UserController {
         } else {
             throw new UserCreateException("Возникла ошибка при валидации в PUT-method");
         }
-
     }
 
     private boolean validateUser(User user) {
