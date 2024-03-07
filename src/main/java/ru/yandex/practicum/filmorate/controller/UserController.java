@@ -16,9 +16,7 @@ import java.util.Map;
 @RestController
 public class UserController {
     private Map<Integer, User> users = new HashMap<>();
-
     private int id = 0;
-
     private void plusId() {
         this.id++;
     }
@@ -38,10 +36,8 @@ public class UserController {
         if (validateUser(user)) {
             plusId();
             user.setId(id);
-
             users.put(id, user);
             log.info("User добавлен в UsersList");
-
             return user;
         } else {
             log.warn("User не прошел валидацию");
@@ -54,7 +50,6 @@ public class UserController {
         if (validateUser(user) && users.containsKey(user.getId())) {
             users.put(id, user);
             log.info("User был обновлен в UsersList");
-
             return user;
         } else {
             throw new UserCreateException("Возникла ошибка при валидации в PUT-method");
@@ -66,7 +61,6 @@ public class UserController {
         boolean userLoginIsEmpty = user.getLogin().isEmpty() || user.getLogin().isBlank();
         boolean userEmailIsCorrect = !user.getEmail().isEmpty() && user.getEmail().contains("@");
         boolean birthdayIsFuture = user.getBirthday().isAfter(LocalDate.now());
-
         return !userLoginIsEmpty && !birthdayIsFuture && userEmailIsCorrect;
     }
 }
