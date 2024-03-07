@@ -40,6 +40,7 @@ public class UserController {
             user.setId(id);
             users.put(id, user);
             log.info("User добавлен в UsersList");
+
             return user;
         } else {
             log.warn("User не прошел валидацию");
