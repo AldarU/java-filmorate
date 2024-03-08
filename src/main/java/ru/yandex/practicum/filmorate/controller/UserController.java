@@ -51,7 +51,7 @@ public class UserController {
     @PutMapping("/users")
     public User updateUser(@RequestBody User user) throws UserCreateException {
         if (validateUser(user) && users.containsKey(user.getId())) {
-            users.put(id, user);
+            users.put(user.getId(), user);
             log.info("User был обновлен в UsersList");
             return user;
         } else {
@@ -60,9 +60,7 @@ public class UserController {
     }
 
     private boolean validateUser(User user) {
-        boolean userLoginIsEmpty = user.getLogin().isEmpty() || user.getLogin().isBlank();
-        boolean userEmailIsCorrect = !user.getEmail().isEmpty() && user.getEmail().contains("@");
         boolean birthdayIsFuture = user.getBirthday().isAfter(LocalDate.now());
-        return !userLoginIsEmpty && !birthdayIsFuture && userEmailIsCorrect;
+        return !birthdayIsFuture;
     }
 }
