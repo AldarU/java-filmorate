@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exceptions.FilmCreateException;
 import ru.yandex.practicum.filmorate.model.Film;
 
+import javax.validation.Valid;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,7 +29,7 @@ public class FilmController {
     }
 
     @PostMapping("/films")
-    public Film addFilm(@RequestBody Film film) throws FilmCreateException {
+    public Film addFilm(@Valid @RequestBody Film film) throws FilmCreateException {
         if (validateFilm(film)) {
             plusId();
             film.setId(id);
@@ -46,7 +47,7 @@ public class FilmController {
     @PutMapping("/films")
     public Film updateFilm(@RequestBody Film film) throws FilmCreateException {
         if (validateFilm(film) && films.containsKey(film.getId())) {
-            films.put(id, film);
+            films.put(film.getId(), film);
             log.info("Film был обновлен");
             return film;
         } else {
@@ -55,16 +56,8 @@ public class FilmController {
         }
     }
 
-
     private boolean validateFilm(Film film) {
         LocalDate earlyFilmDate = LocalDate.of(1895, 12, 28);
-        boolean correctReleaseDate =
-                film.getReleaseDate().isAfter(earlyFilmDate);
-
-        boolean correctFilmName = !film.getName().isEmpty() && !film.getName().isBlank();
-        boolean correctFilmDescriptionSize = film.getDescription().length() <= 200;
-        boolean correctDuration = film.getDuration() > 0;
-
-        return correctFilmName && correctFilmDescriptionSize && correctReleaseDate && correctDuration;
+        return film.getReleaseDate().isAfter(earlyFilmDate);
     }
 }

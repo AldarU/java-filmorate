@@ -1,23 +1,24 @@
 package ru.yandex.practicum.filmorate.model;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
-import org.springframework.format.annotation.DateTimeFormat;
 
+import javax.validation.constraints.*;
 import java.time.LocalDate;
 
 @Data
 public class Film {
     private int id;
 
+    @NotBlank(message = "Имя не может быть пустым")
     private String name;
 
+    @NotBlank
+    @Size(max = 200, message = "Description должно иметь не более 200 символов")
     private String description;
 
-    @JsonFormat(pattern = "yyyy-MM-dd")
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @NotNull
     private LocalDate releaseDate;
 
-
+    @Positive(message = "Duration должно быть больше 0")
     private int duration;
 }
