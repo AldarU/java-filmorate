@@ -22,6 +22,7 @@ public class InMemoryUserStorage implements UserStorage {
     private void plusId() {
         this.id++;
     }
+
     @Override
     public List<User> getUsers() {
         return new ArrayList<>(users.values());
