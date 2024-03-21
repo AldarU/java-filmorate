@@ -3,18 +3,19 @@ package ru.yandex.practicum.filmorate.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundFilmorateExceptions;
+import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.service.storage.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.service.storage.FilmStorage;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 public class FilmService { // сервис отвечающий за работу с лайками
-    InMemoryFilmStorage inMemoryFilmStorage;
+    FilmStorage inMemoryFilmStorage;
 
     @Autowired
-    public FilmService(InMemoryFilmStorage inMemoryFilmStorage) {
+    public FilmService(FilmStorage inMemoryFilmStorage) {
         this.inMemoryFilmStorage = inMemoryFilmStorage;
     }
 
@@ -32,7 +33,12 @@ public class FilmService { // сервис отвечающий за работ�
 
     public Film addLike(int filmId, int userId) {  // добавление лайка
         Film film = getFilmById(filmId);
-        film.getLikes().add(userId);
+
+        if (!film.getLikes().contains(userId)) {
+            film.getLikes().add(userId);
+        } else {
+            throw new ValidationException("Некорректный запрос. Нельзя дважды поставить лайк.");
+        }
 
         return film;
     }
@@ -54,7 +60,7 @@ public class FilmService { // сервис отвечающий за работ�
 
         films = films.stream()
                 .sorted((f0, f1) -> f1.getLikes().size() - f0.getLikes().size())
-                .limit(likeCount > 0 ? 10 : likeCount)
+                .limit(likeCount > 0 ? likeCount : 10)
                 .collect(Collectors.toList());
 
         return films;

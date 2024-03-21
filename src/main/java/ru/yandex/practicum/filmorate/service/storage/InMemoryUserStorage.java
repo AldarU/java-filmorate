@@ -44,11 +44,7 @@ public class InMemoryUserStorage implements UserStorage {
             return user;
         } else {
             log.warn("User не прошел валидацию");
-            if (!validateUser(user)) {
-                throw new ValidationException("Возникла ошибка при валидации в POST-method");
-            } else {
-                throw new NotFoundFilmorateExceptions("Фильм не найден");
-            }
+            throw new ValidationException("Возникла ошибка при валидации в POST-method");
         }
     }
 

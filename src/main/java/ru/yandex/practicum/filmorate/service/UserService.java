@@ -2,8 +2,11 @@ package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exceptions.NotFoundFilmorateExceptions;
+import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.storage.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.service.storage.UserStorage;
 
 import java.util.HashSet;
 import java.util.List;
@@ -12,10 +15,10 @@ import java.util.stream.Collectors;
 
 @Service
 public class UserService {
-    InMemoryUserStorage inMemoryUserStorage;
+    UserStorage inMemoryUserStorage;
 
     @Autowired
-    public UserService(InMemoryUserStorage inMemoryUserStorage) {
+    public UserService(UserStorage inMemoryUserStorage) {
         this.inMemoryUserStorage = inMemoryUserStorage;
     }
 
@@ -35,8 +38,12 @@ public class UserService {
         User user = getUserById(userId);
         User friend = getUserById(friendId);
 
-        user.getFriendList().add(friendId);
-        friend.getFriendList().add(userId);
+        if (!user.getFriendList().contains(friendId) || !friend.getFriendList().contains(userId)) {
+            user.getFriendList().add(friendId);
+            friend.getFriendList().add(userId);
+        } else {
+            throw new ValidationException("Некорректный запрос. Нельзя дважды добавить в друзья.");
+        }
 
         return user;
     }
@@ -45,8 +52,10 @@ public class UserService {
         User user = getUserById(userId);
         User friend = getUserById(friendId);
 
-        user.getFriendList().remove(friendId);
-        friend.getFriendList().remove(userId);
+        if (user.getFriendList().contains(friendId) && friend.getFriendList().contains(userId)) {
+            user.getFriendList().remove(friendId);
+            friend.getFriendList().remove(userId);
+        }
 
         return user;
     }

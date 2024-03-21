@@ -41,11 +41,7 @@ public class InMemoryFilmStorage implements FilmStorage {
             return film;
         } else {
             log.warn("Film не прошел валидацию");
-            if (!validateFilm(film)) {
-                throw new ValidationException("Возникла ошибка при валидации в POST-method");
-            } else {
-                throw new NotFoundFilmorateExceptions("Фильм не найден");
-            }
+            throw new ValidationException("Возникла ошибка при валидации в POST-method");
         }
     }
 
