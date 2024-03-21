@@ -1,63 +1,49 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exceptions.FilmCreateException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.Valid;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-@Slf4j
 @RestController
 public class FilmController {
-    private Map<Integer, Film> films = new HashMap<>();
+    private final FilmService filmService;
 
-    private int id = 0;
-
-    private void plusId() {
-        this.id++;
+    @Autowired
+    public FilmController(FilmService filmService) {
+        this.filmService = filmService;
     }
 
     @GetMapping("/films")
     public List<Film> getFilms() {
-        return new ArrayList<>(films.values());
+        return filmService.getFilm();
     }
 
     @PostMapping("/films")
-    public Film addFilm(@Valid @RequestBody Film film) throws FilmCreateException {
-        if (validateFilm(film)) {
-            plusId();
-            film.setId(id);
-
-            films.put(id, film);
-            log.info("Film добавлен в FilmsList");
-
-            return film;
-        } else {
-            log.warn("Film не прошел валидацию");
-            throw new FilmCreateException("Возникла ошибка при валидации в POST-method");
-        }
+    public Film addFilm(@Valid @RequestBody Film film) {
+        return filmService.addFilm(film);
     }
 
     @PutMapping("/films")
-    public Film updateFilm(@RequestBody Film film) throws FilmCreateException {
-        if (validateFilm(film) && films.containsKey(film.getId())) {
-            films.put(film.getId(), film);
-            log.info("Film был обновлен");
-            return film;
-        } else {
-            log.warn("Film не прошел валидацию");
-            throw new FilmCreateException("Возникла ошибка при валидации в PUT-method"); // перепроверь конструктор
-        }
+    public Film updateFilm(@RequestBody Film film) {
+        return filmService.updateFilm(film);
     }
 
-    private boolean validateFilm(Film film) {
-        LocalDate earlyFilmDate = LocalDate.of(1895, 12, 28);
-        return film.getReleaseDate().isAfter(earlyFilmDate);
+    @PutMapping("/films/{id}/like/{userId}")
+    public Film addLike(@PathVariable int id, @PathVariable int userId) {
+        return filmService.addLike(id, userId);
+    }
+
+    @DeleteMapping("/films/{id}/like/{userId}")
+    public Film removeLike(@PathVariable int id, @PathVariable int userId) {
+        return filmService.removeLike(id, userId);
+    }
+
+    @GetMapping("/films/popular")
+    public List<Film> getTopFilms(@RequestParam int count) {
+        return filmService.getTopFilms(count);
     }
 }
