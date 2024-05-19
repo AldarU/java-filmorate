@@ -30,7 +30,7 @@ class UserTests {
             "xxxxxx", LocalDate.of(1986, 5, 15), new HashSet<>());
 
     @Test
-    public void TestGetUsers() {
+    public void testGetUsers() {
         userStorage.addUser(user);
         userStorage.addUser(upUser);
         Assertions.assertTrue(userStorage.getUsers().size() == 2);
