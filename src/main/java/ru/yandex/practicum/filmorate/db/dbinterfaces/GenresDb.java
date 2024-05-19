@@ -6,5 +6,6 @@ import java.util.List;
 
 public interface GenresDb {
     List<Genre> getGenres();
+
     Genre getGenreById(int id);
 }
