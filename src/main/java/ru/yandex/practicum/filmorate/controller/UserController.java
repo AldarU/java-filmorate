@@ -1,67 +1,56 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exceptions.UserCreateException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-@Slf4j
 @RestController
 public class UserController {
-    private Map<Integer, User> users = new HashMap<>();
+    private final UserService userService;
 
-    private int id = 0;
-
-    private void plusId() {
-        this.id++;
+    @Autowired
+    public UserController(UserService userService) {
+        this.userService = userService;
     }
 
     @GetMapping("/users")
     public List<User> getUsers() {
-        return new ArrayList<>(users.values());
+        return userService.getUsers();
     }
 
     @PostMapping("/users")
-    public User addUser(@Valid @RequestBody User user) throws UserCreateException {
-        if (user.getName() == null || user.getName().isBlank()) {
-            user.setName(user.getLogin());
-            log.info("Имя user пустое. Именем станет логин.");
-        }
-
-        if (validateUser(user)) {
-            plusId();
-            user.setId(id);
-            users.put(id, user);
-            log.info("User добавлен в UsersList");
-
-
-            return user;
-        } else {
-            log.warn("User не прошел валидацию");
-            throw new UserCreateException("Возникла ошибка при валидации в POST-method");
-        }
+    public User addUser(@Valid @RequestBody User user) {
+        return userService.addUser(user);
     }
 
     @PutMapping("/users")
-    public User updateUser(@RequestBody User user) throws UserCreateException {
-        if (validateUser(user) && users.containsKey(user.getId())) {
-            users.put(user.getId(), user);
-            log.info("User был обновлен в UsersList");
-            return user;
-        } else {
-            throw new UserCreateException("Возникла ошибка при валидации в PUT-method");
-        }
+    public User updateUser(@RequestBody User user) {
+        return userService.updateUser(user);
     }
 
-    private boolean validateUser(User user) {
-        boolean birthdayIsFuture = user.getBirthday().isAfter(LocalDate.now());
-        return !birthdayIsFuture;
+    @PutMapping("/users/{id}/friends/{friendId}")
+    public User addFriend(@PathVariable int id, @PathVariable int friendId) {
+        User user = userService.addFriend(id, friendId);
+        return user;
+    }
+
+    @DeleteMapping("/users/{id}/friends/{friendId}")
+    public User deleteFriend(@PathVariable int id, @PathVariable int friendId) {
+        User user = userService.removeFriend(id, friendId);
+        return user;
+    }
+
+    @GetMapping("/users/{id}/friends")
+    public List<User> getFriends(@PathVariable int id) {
+        return userService.getAllFriend(id);
+    }
+
+    @GetMapping("/users/{id}/friends/common/{friendId}")
+    public List<User> getMutualFriends(@PathVariable int id, @PathVariable int friendId) {
+        return userService.getMutualFriends(id, friendId);
     }
 }
