@@ -6,6 +6,8 @@ import java.util.List;
 
 public interface FriendsDb {
     Integer addFriend(int id, int friendId, boolean isMutualFriends);
+
     void deleteFriend(int id, int friendId);
+
     List<Friends> getFriends(int id);
 }
