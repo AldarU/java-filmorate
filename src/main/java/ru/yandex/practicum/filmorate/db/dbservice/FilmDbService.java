@@ -4,12 +4,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-import ru.yandex.practicum.filmorate.db.dbinterfaces.GenresDb;
-import ru.yandex.practicum.filmorate.db.dbinterfaces.MpaDb;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.db.dbinterfaces.FilmStorage;
-import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -36,9 +33,11 @@ public class FilmDbService {  // класс отвечающий за работ
         if (validateFilm(film)) {
             Film actualFilm = filmDbStorage.addFilm(film);
 
-            filmDbStorage.addGenres(actualFilm.getId(), film.getGenres());
-            actualFilm.setGenres(filmDbStorage.getGenres(actualFilm.getId()));
-            actualFilm.setMpa(mpaDb.getMpaById(actualFilm.getMpa().getId()));
+            if (mpaDb.mpaIsContains(actualFilm.getMpa().getId()) && genreDbService.genreIsContains(actualFilm.getId())) {
+                filmDbStorage.addGenres(actualFilm.getId(), film.getGenres());
+                actualFilm.setGenres(filmDbStorage.getGenres(actualFilm.getId()));
+                actualFilm.setMpa(mpaDb.getMpaById(actualFilm.getMpa().getId()));
+            }
 
             return actualFilm;
         } else {
@@ -50,9 +49,11 @@ public class FilmDbService {  // класс отвечающий за работ
         if (validateFilm(film) && isContains(film.getId())) {
             Film actualFilm = filmDbStorage.updateFilm(film);
 
-            filmDbStorage.updateGenres(actualFilm.getId(), film.getGenres());
-            actualFilm.setGenres(filmDbStorage.getGenres(actualFilm.getId()));
-            actualFilm.setMpa(mpaDb.getMpaById(actualFilm.getMpa().getId()));
+            if (mpaDb.mpaIsContains(actualFilm.getMpa().getId()) && genreDbService.genreIsContains(actualFilm.getId())) {
+                filmDbStorage.updateGenres(actualFilm.getId(), film.getGenres());
+                actualFilm.setGenres(filmDbStorage.getGenres(actualFilm.getId()));
+                actualFilm.setMpa(mpaDb.getMpaById(actualFilm.getMpa().getId()));
+            }
 
             return actualFilm;
         } else {
@@ -92,10 +93,10 @@ public class FilmDbService {  // класс отвечающий за работ
         } else {
             return false;
         }
-}
+    }
 
-private boolean validateFilm(Film film) {  // проверяем подходит ли фильм под минимальный localdate
-    LocalDate earlyFilmDate = LocalDate.of(1895, 12, 28);
-    return film.getReleaseDate().isAfter(earlyFilmDate);
-}
+    private boolean validateFilm(Film film) {  // проверяем подходит ли фильм под минимальный localdate
+        LocalDate earlyFilmDate = LocalDate.of(1895, 12, 28);
+        return film.getReleaseDate().isAfter(earlyFilmDate);
+    }
 }
