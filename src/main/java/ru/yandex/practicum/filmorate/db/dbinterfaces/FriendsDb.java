@@ -10,4 +10,6 @@ public interface FriendsDb {
     void deleteFriend(int id, int friendId);
 
     List<Friends> getFriends(int id);
+
+    List<Friends> getFriendById(int userId, int friendId);
 }

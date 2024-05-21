@@ -4,10 +4,12 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import ru.yandex.practicum.filmorate.db.dbinterfaces.GenresDb;
 import ru.yandex.practicum.filmorate.db.dbinterfaces.MpaDb;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.db.dbinterfaces.FilmStorage;
+import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -15,11 +17,15 @@ import java.util.List;
 @Service
 public class FilmDbService {  // класс отвечающий за работу над film после получения его из БД
     private FilmStorage filmDbStorage;
-    private MpaDb mpaDb;
+    private MpaDbService mpaDb;
+    private GenreDbService genreDbService;
+    private UserDbService userDbService;
 
-    public FilmDbService(@Qualifier("main") FilmStorage filmDbStorage, MpaDb mpaDb) {
+    public FilmDbService(@Qualifier("main") FilmStorage filmDbStorage, MpaDbService mpaDb, GenreDbService genreDbService, UserDbService userDbService) {
         this.filmDbStorage = filmDbStorage;
         this.mpaDb = mpaDb;
+        this.userDbService = userDbService;
+        this.genreDbService = genreDbService;
     }
 
     public List<Film> getFilm() {
@@ -36,7 +42,7 @@ public class FilmDbService {  // класс отвечающий за работ
 
             return actualFilm;
         } else {
-            throw new ValidationException("Возникла ошибка при добавлении фильма");
+            throw new ValidationException("An error occurred while adding a movie");
         }
     }
 
@@ -50,7 +56,7 @@ public class FilmDbService {  // класс отвечающий за работ
 
             return actualFilm;
         } else {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Пользователь не был найден");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "The film was not found");
         }
     }
 
@@ -64,13 +70,13 @@ public class FilmDbService {  // класс отвечающий за работ
     }
 
     public void addLike(int filmId, int userId) {
-        if (isContains(filmId)) {
+        if (isContains(filmId) && userDbService.isContains(userId)) {
             filmDbStorage.addLike(filmId, userId);
         }
     }
 
     public void removeLike(int filmId, int userId) {
-        if (isContains(filmId)) {
+        if (isContains(filmId) && userDbService.isContains(userId)) {
             filmDbStorage.removeLike(filmId, userId);
         }
     }
@@ -80,16 +86,16 @@ public class FilmDbService {  // класс отвечающий за работ
     }
 
     public boolean isContains(int id) {  // проверка есть ли такой фильм
-        try {
-            filmDbStorage.getFilmById(id);
+        Film film = filmDbStorage.getFilmById(id);
+        if (film != null) {
             return true;
-        } catch (Exception exception) {
+        } else {
             return false;
         }
-    }
+}
 
-    private boolean validateFilm(Film film) {  // проверяем подходит ли фильм под минимальный localdate
-        LocalDate earlyFilmDate = LocalDate.of(1895, 12, 28);
-        return film.getReleaseDate().isAfter(earlyFilmDate);
-    }
+private boolean validateFilm(Film film) {  // проверяем подходит ли фильм под минимальный localdate
+    LocalDate earlyFilmDate = LocalDate.of(1895, 12, 28);
+    return film.getReleaseDate().isAfter(earlyFilmDate);
+}
 }

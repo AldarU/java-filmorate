@@ -26,7 +26,16 @@ public class GenreDbService {
         if (id <= 6) {
             return mpaGenres.getGenreById(id);
         } else {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Данный GENRE не найден");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "This GENRE was not found");
+        }
+    }
+
+    public boolean genreIsContains(int id) {
+        Genre genre = getGenreById(id);
+        if (genre != null) {
+            return true;
+        } else {
+            return false;
         }
     }
 }

@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.db.impl;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.db.dbinterfaces.MpaDb;
@@ -9,6 +10,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
+@Slf4j
 @Component
 public class MpaDbStorage implements MpaDb {  // добавь интерфейс
     private final JdbcTemplate jdbcTemplate;
@@ -21,7 +23,7 @@ public class MpaDbStorage implements MpaDb {  // добавь интерфейс
     public List<Mpa> getMpa() {
         String sqlQuery = "SELECT rating_id, rating_name " +
                 "FROM rating_mpa ";
-
+        log.info("The mpa was received");
         return jdbcTemplate.query(sqlQuery, this::mapRowToMpa);
     }
 
@@ -32,6 +34,8 @@ public class MpaDbStorage implements MpaDb {  // добавь интерфейс
                 "WHERE rating_id=?";
 
         Mpa mpa = jdbcTemplate.queryForObject(sqlQuery, this::mapRowToMpa, id);
+        log.info("The mpa was obtained by Id");
+
         return mpa;
     }
 

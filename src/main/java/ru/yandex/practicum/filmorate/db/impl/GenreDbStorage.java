@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.db.impl;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.db.dbinterfaces.GenresDb;
@@ -9,6 +10,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
+@Slf4j
 @Component
 public class GenreDbStorage implements GenresDb {
     private final JdbcTemplate jdbcTemplate;
@@ -21,7 +23,7 @@ public class GenreDbStorage implements GenresDb {
     public List<Genre> getGenres() {
         String sqlQuery = "SELECT genre_id, genre_name " +
                 "FROM genres ";
-
+        log.info("A list of genres was received");
         return jdbcTemplate.query(sqlQuery, this::mapRowToGenre);
     }
 
@@ -32,6 +34,7 @@ public class GenreDbStorage implements GenresDb {
                 "WHERE genre_id=?";
 
         Genre genre = jdbcTemplate.queryForObject(sqlQuery, this::mapRowToGenre, id);
+        log.info("The genre was obtained by id");
         return genre;
     }
 

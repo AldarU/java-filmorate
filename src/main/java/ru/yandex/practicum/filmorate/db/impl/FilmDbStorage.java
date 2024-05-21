@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.db.impl;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
@@ -15,6 +16,7 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Component("main")
 public class FilmDbStorage implements FilmStorage {  // класс отвечающий за запросы к БД
     private final JdbcTemplate jdbcTemplate;
@@ -30,6 +32,7 @@ public class FilmDbStorage implements FilmStorage {  // класс отвеча�
     public List<Film> getFilm() {
         String sqlQuery = "SELECT * FROM films ";
         List<Film> films = jdbcTemplate.query(sqlQuery, this::mapRowToFilm);
+        log.info("A list of movies is being received");
         return films;
     }
 
@@ -48,7 +51,7 @@ public class FilmDbStorage implements FilmStorage {  // класс отвеча�
         params.put("rating_id", film.getMpa().getId());
         int id = jdbcInsert.executeAndReturnKey(params).intValue();
         film.setId(id);
-
+        log.info("A movie has been added");
         return film;
     }
 
@@ -61,11 +64,14 @@ public class FilmDbStorage implements FilmStorage {  // класс отвеча�
         jdbcTemplate.update(sqlQuery, film.getName(), film.getDescription(), film.getReleaseDate(), film.getDuration(),
                 film.getMpa().getId(), film.getId());
 
+        log.info("The movie has been updated");
+
         return getFilmById(film.getId());
     }
 
     @Override
-    public List<Film> getTopFilms(int limit) {
+    public List<Film> getTopFilms(int limit) { // вывод топ фильмов
+        log.info("There was a receipt of the top films");
         return getFilm().stream()
                 .sorted((f0, f1) -> likeDbStorage.getCountLikesInFilm(f1.getId()) - likeDbStorage.getCountLikesInFilm(f0.getId()))
                 .limit(limit)
@@ -78,6 +84,7 @@ public class FilmDbStorage implements FilmStorage {  // класс отвеча�
             jdbcTemplate.update(
                     "INSERT INTO film_genres (film_id, genre_id) VALUES (?, ?)", filmId, genre.getId());
         }
+        log.info("A genre has been added");
     }
 
     @Override
@@ -87,6 +94,7 @@ public class FilmDbStorage implements FilmStorage {  // класс отвеча�
             jdbcTemplate.update(
                     "INSERT INTO film_genres (film_id, genre_id) VALUES (?, ?)", filmId, genre.getId());
         }
+        log.info("A genre has been updated");
     }
 
     @Override
@@ -100,6 +108,8 @@ public class FilmDbStorage implements FilmStorage {  // класс отвеча�
                 .stream()
                 .distinct()
                 .collect(Collectors.toList());
+
+        log.info("a list of genres was received");
 
         return genres;
     }
@@ -119,6 +129,8 @@ public class FilmDbStorage implements FilmStorage {  // класс отвеча�
         String sqlQuery = "SELECT film_id, film_name, description, duration, release_date, rating_id " +
                 "FROM films " +
                 "WHERE film_id = ?";
+
+        log.info("The movie was received by id");
 
         return jdbcTemplate.queryForObject(sqlQuery, this::mapRowToFilm, filmId);
     }

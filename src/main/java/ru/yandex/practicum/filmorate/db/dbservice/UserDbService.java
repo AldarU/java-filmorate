@@ -41,7 +41,7 @@ public class UserDbService {
         if (validateUser(user)) {
             return userDbStorage.addUser(user);
         } else {
-            throw new ValidationException("Возникла ошибка при добавлении пользователя");
+            throw new ValidationException("An error occurred while adding a user");
         }
     }
 
@@ -49,20 +49,25 @@ public class UserDbService {
         if (validateUser(user) && isContains(user.getId())) {
             return userDbStorage.updateUser(user);
         } else {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Пользователь не был найден");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "The user was not found");
         }
     }
 
     public User addFriend(int userId, int friendId) { // добавление друга
-        boolean status = false;
+        if (isContains(userId) && isContains(friendId)) {
+            boolean status = false;
 
-        for (User friend : getFriends(friendId)) {
-            if (friend.getId() == userId) {
+            List<Friends> friends = friendsDb.getFriendById(friendId, userId);
+
+            if (!friends.isEmpty()) {
                 status = true;
             }
+
+            friendsDb.addFriend(userId, friendId, status);
+            return userDbStorage.userGetById(userId);
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "The friend was not found");
         }
-        friendsDb.addFriend(userId, friendId, status);
-        return userDbStorage.userGetById(userId);
     }
 
     public List<User> getFriends(int id) {  // ищем друзей
@@ -73,7 +78,7 @@ public class UserDbService {
                     .map(x -> userDbStorage.userGetById(x.getFriendId()))
                     .collect(Collectors.toList());
         } else {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Пользователь не был найден");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "The user was not found");
         }
     }
 
@@ -81,7 +86,7 @@ public class UserDbService {
         if (isContains(id) && isContains(friendId)) { // для начала проверяем есть ли вообще такой user в бд
             friendsDb.deleteFriend(id, friendId);
         } else {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "При удалении пользователь не был найден");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "When deleting, the user was not found");
         }
     }
 
@@ -92,10 +97,10 @@ public class UserDbService {
     }
 
     public boolean isContains(int id) {  // проверка есть ли такой фильм
-        try {
-            userDbStorage.userGetById(id);
+        User user = userDbStorage.userGetById(id);
+        if (user != null) {
             return true;
-        } catch (Exception exception) {
+        } else {
             return false;
         }
     }

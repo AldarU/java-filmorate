@@ -1,9 +1,12 @@
 package ru.yandex.practicum.filmorate.db.impl;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Component;
+import org.springframework.web.server.ResponseStatusException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.db.dbinterfaces.UserStorage;
 
@@ -12,6 +15,7 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.*;
 
+@Slf4j
 @Component("mainUser")
 public class UserDbStorage implements UserStorage {
     private final JdbcTemplate jdbcTemplate;
@@ -25,6 +29,7 @@ public class UserDbStorage implements UserStorage {
     public List<User> getUsers() {
         String sqlQuery = "SELECT * FROM users ";
         List<User> users = jdbcTemplate.query(sqlQuery, this::mapRowToUser);
+        log.info("A list of users was received");
         return users;
     }
 
@@ -42,7 +47,7 @@ public class UserDbStorage implements UserStorage {
         params.put("birthday", user.getBirthday());
         int id = jdbcInsert.executeAndReturnKey(params).intValue();
         user.setId(id);
-
+        log.info("The user has been added");
         return user;
     }
 
@@ -59,16 +64,23 @@ public class UserDbStorage implements UserStorage {
                 user.getEmail(),
                 user.getBirthday(),
                 user.getId());
-
+        log.info("The user has been updated");
         return userGetById(user.getId());
     }
 
     public User userGetById(int userId) {
-        String sqlQuery = "SELECT user_id, user_name, login, email, birthday " +
-                          "FROM users " +
-                          "WHERE user_id = ? ";
+        try {
+            String sqlQuery = "SELECT user_id, user_name, login, email, birthday " +
+                    "FROM users " +
+                    "WHERE user_id = ? ";
 
-        return jdbcTemplate.queryForObject(sqlQuery, this::mapRowToUser, userId);
+            log.info("The user was received by id");
+
+            return jdbcTemplate.queryForObject(sqlQuery, this::mapRowToUser, userId);
+        } catch (Exception e) {
+            log.warn("The user was not found by id");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "The user was not found");
+        }
     }
 
     private User mapRowToUser(ResultSet resultSet, int rowNum) throws SQLException {

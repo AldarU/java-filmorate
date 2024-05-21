@@ -9,6 +9,7 @@ import javax.validation.Valid;
 import java.util.List;
 
 @RestController
+@RequestMapping("/users")
 public class UserController {
     private final UserDbService userService;
 
@@ -17,37 +18,37 @@ public class UserController {
         this.userService = userService;
     }
 
-    @GetMapping("/users")
+    @GetMapping()
     public List<User> getUsers() {
         return userService.getUsers();
     }
 
-    @PostMapping("/users")
+    @PostMapping()
     public User addUser(@Valid @RequestBody User user) {
         return userService.addUser(user);
     }
 
-    @PutMapping("/users")
+    @PutMapping()
     public User updateUser(@RequestBody User user) {
         return userService.updateUser(user);
     }
 
-    @PutMapping("/users/{id}/friends/{friendId}")
+    @PutMapping("/{id}/friends/{friendId}")
     public User addFriend(@PathVariable int id, @PathVariable int friendId) {
         return userService.addFriend(id, friendId);
     }
 
-    @DeleteMapping("/users/{id}/friends/{friendId}")
+    @DeleteMapping("/{id}/friends/{friendId}")
     public void deleteFriend(@PathVariable int id, @PathVariable int friendId) {
         userService.deleteFriend(id, friendId);
     }
 
-    @GetMapping("/users/{id}/friends")
+    @GetMapping("/{id}/friends")
     public List<User> getFriends(@PathVariable int id) {
         return userService.getFriends(id);
     }
 
-    @GetMapping("/users/{id}/friends/common/{friendId}")
+    @GetMapping("/{id}/friends/common/{friendId}")
     public List<User> getMutualFriends(@PathVariable int id, @PathVariable int friendId) {
         return userService.getMutualFriends(id, friendId);
     }

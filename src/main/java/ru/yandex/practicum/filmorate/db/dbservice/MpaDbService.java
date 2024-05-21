@@ -26,7 +26,16 @@ public class MpaDbService {
         if (id <= 5) {
             return mpaDbStorage.getMpaById(id);
         } else {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Данный MPA не найден");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "This MPA was not found");
+        }
+    }
+
+    public boolean mpaIsContains(int id) {
+        Mpa mpa = getMpaById(id);
+        if (mpa != null) {
+            return true;
+        } else {
+            return false;
         }
     }
 }
