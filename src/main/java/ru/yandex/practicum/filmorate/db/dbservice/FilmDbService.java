@@ -33,11 +33,9 @@ public class FilmDbService {  // класс отвечающий за работ
         if (validateFilm(film)) {
             Film actualFilm = filmDbStorage.addFilm(film);
 
-            if (mpaDb.mpaIsContains(actualFilm.getMpa().getId()) && genreDbService.genreIsContains(actualFilm.getId())) {
-                filmDbStorage.addGenres(actualFilm.getId(), film.getGenres());
-                actualFilm.setGenres(filmDbStorage.getGenres(actualFilm.getId()));
-                actualFilm.setMpa(mpaDb.getMpaById(actualFilm.getMpa().getId()));
-            }
+            filmDbStorage.addGenres(actualFilm.getId(), film.getGenres());
+            actualFilm.setGenres(filmDbStorage.getGenres(actualFilm.getId()));
+            actualFilm.setMpa(mpaDb.getMpaById(actualFilm.getMpa().getId()));
 
             return actualFilm;
         } else {
@@ -49,11 +47,9 @@ public class FilmDbService {  // класс отвечающий за работ
         if (validateFilm(film) && isContains(film.getId())) {
             Film actualFilm = filmDbStorage.updateFilm(film);
 
-            if (mpaDb.mpaIsContains(actualFilm.getMpa().getId()) && genreDbService.genreIsContains(actualFilm.getId())) {
-                filmDbStorage.updateGenres(actualFilm.getId(), film.getGenres());
-                actualFilm.setGenres(filmDbStorage.getGenres(actualFilm.getId()));
-                actualFilm.setMpa(mpaDb.getMpaById(actualFilm.getMpa().getId()));
-            }
+            filmDbStorage.updateGenres(actualFilm.getId(), film.getGenres());
+            actualFilm.setGenres(filmDbStorage.getGenres(actualFilm.getId()));
+            actualFilm.setMpa(mpaDb.getMpaById(actualFilm.getMpa().getId()));
 
             return actualFilm;
         } else {
