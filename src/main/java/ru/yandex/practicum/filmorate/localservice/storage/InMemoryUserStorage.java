@@ -1,7 +1,8 @@
-package ru.yandex.practicum.filmorate.service.storage;
+package ru.yandex.practicum.filmorate.localservice.storage;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.db.dbinterfaces.UserStorage;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundFilmorateExceptions;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
@@ -17,7 +18,7 @@ import java.util.Map;
 public class InMemoryUserStorage implements UserStorage {
     protected static Map<Integer, User> users = new HashMap<>();
 
-    private int id = 0;
+    private Integer id;
 
     private void plusId() {
         this.id++;
