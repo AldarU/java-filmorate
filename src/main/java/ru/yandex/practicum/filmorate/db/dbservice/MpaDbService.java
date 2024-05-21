@@ -29,13 +29,4 @@ public class MpaDbService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "This MPA was not found");
         }
     }
-
-    public boolean mpaIsContains(int id) {
-        Mpa mpa = getMpaById(id);
-        if (mpa != null) {
-            return true;
-        } else {
-            return false;
-        }
-    }
 }

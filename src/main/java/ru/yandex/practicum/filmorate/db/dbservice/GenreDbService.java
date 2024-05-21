@@ -29,13 +29,4 @@ public class GenreDbService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "This GENRE was not found");
         }
     }
-
-    public boolean genreIsContains(int id) {
-        Genre genre = getGenreById(id);
-        if (genre != null) {
-            return true;
-        } else {
-            return false;
-        }
-    }
 }
